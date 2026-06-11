@@ -107,19 +107,7 @@ export default function AnimatedBeach({
 
       {/* Birds */}
 
-      <motion.div
-        className="absolute top-20 text-white text-3xl"
-        animate={{
-          x: [-200, 1500],
-        }}
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: "linear",
-        }}
-      >
-        🕊️ 🕊️
-      </motion.div>
+     
 
       {/* Content */}
 
