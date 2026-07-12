@@ -1,6 +1,6 @@
 import { supabase } from "../../../lib/supabase";
 
-import AnimatedBeach from "../../components/AnimatedBeach";
+import BeachScene from "../../components/scene/BeachScene";
 import ReceiverExperience from "../../components/ReceiverExperience";
 
 export default async function MessagePage({
@@ -17,7 +17,7 @@ export default async function MessagePage({
     .single();
 
   return (
-    <AnimatedBeach>
+    <BeachScene>
 
       <ReceiverExperience
         message={
@@ -26,6 +26,6 @@ export default async function MessagePage({
         }
       />
 
-    </AnimatedBeach>
+    </BeachScene>
   );
 }
