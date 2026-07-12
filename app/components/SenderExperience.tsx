@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import IntroLogo from "./IntroLogo";
 import BottleAssembly from "./BottleAssembly";
@@ -10,8 +10,6 @@ import OceanThrow from "./OceanThrow";
 import { supabase } from "../../lib/supabase";
 
 export default function SenderExperience() {
-  const [showIntro, setShowIntro] = useState(true);
-
   const [message, setMessage] =
     useState("");
 
@@ -26,13 +24,7 @@ const [generatedLink, setGeneratedLink] =
     "ocean" |
     "link"
   >("write");
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowIntro(false);
-    }, 2500);
 
-    return () => clearTimeout(timer);
-  }, []);
   const saveMessage = async () => {
   const { data, error } =
     await supabase
@@ -58,11 +50,8 @@ const [generatedLink, setGeneratedLink] =
   setStage("link");
 };
 
-  if (showIntro) {
-    return <IntroLogo />;
-  }
-
   return (
+    <IntroLogo>
     <AnimatedBeach>
 
       <div className="flex min-h-screen items-center justify-center">
@@ -80,7 +69,7 @@ const [generatedLink, setGeneratedLink] =
   <div className="text-center">
 
     <img
-      src="/paper-roll.png"
+      src="/sprites/Paperroll.png"
       className="mx-auto w-40"
     />
 
@@ -172,5 +161,6 @@ const [generatedLink, setGeneratedLink] =
       </div>
 
     </AnimatedBeach>
+    </IntroLogo>
   );
 }

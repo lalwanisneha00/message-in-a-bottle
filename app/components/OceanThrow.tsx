@@ -44,7 +44,7 @@ export default function OceanThrow({
 />
 
         <motion.img
-          src="/bottle-final.png"
+          src="/sprites/bottlefloating.png"
           alt=""
           className="
 absolute

@@ -13,7 +13,7 @@ export default function AnimatedBeach({
       {/* Background */}
 
       <img
-        src="/beach.png"
+        src="/sprites/Beach.png"
         alt="Beach"
         className="absolute inset-0 h-full w-full object-cover"
       />

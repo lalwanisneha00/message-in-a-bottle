@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
+
+import IntroLogo from "./IntroLogo";
 
 interface ReceiverExperienceProps {
   message: string;
@@ -15,6 +18,7 @@ export default function ReceiverExperience({
   >("ocean");
 
   return (
+    <IntroLogo>
     <div className="flex min-h-screen items-center justify-center">
 
       {/* STAGE 1 */}
@@ -24,7 +28,7 @@ export default function ReceiverExperience({
 
           <motion.img
             drag
-            src="/bottle-final.png"
+            src="/sprites/bottlefloating.png"
             alt=""
             className="w-48 mx-auto cursor-grab"
             animate={{
@@ -52,7 +56,7 @@ export default function ReceiverExperience({
         <div className="relative w-[260px] h-[420px]">
 
           <img
-            src="/bottle-paper.png"
+            src="/sprites/Bottlewithpaperroll.png"
             alt=""
             className="absolute inset-0 w-full"
           />
@@ -65,7 +69,7 @@ export default function ReceiverExperience({
               top: -300,
               bottom: 0,
             }}
-            src="/cork.png"
+            src="/sprites/Cork.png"
             alt=""
             className="
               absolute
@@ -103,7 +107,7 @@ export default function ReceiverExperience({
         <div className="relative w-[260px] h-[420px]">
 
           <img
-            src="/bottle-empty.png"
+            src="/sprites/Emptybottle.png"
             alt=""
             className="absolute inset-0 w-full"
           />
@@ -116,7 +120,7 @@ export default function ReceiverExperience({
               top: -320,
               bottom: 0,
             }}
-            src="/paper-roll.png"
+            src="/sprites/Paperroll.png"
             alt=""
             className="
               absolute
@@ -154,7 +158,7 @@ export default function ReceiverExperience({
         <div className="text-center">
 
           <motion.img
-            src="/old-paper.png"
+            src="/sprites/Vintagepaper.png"
             alt=""
             className="w-[350px] md:w-[500px]"
             initial={{
@@ -184,7 +188,7 @@ export default function ReceiverExperience({
         <div className="relative">
 
           <img
-            src="/old-paper.png"
+            src="/sprites/Vintagepaper.png"
             alt=""
             className="w-[350px] md:w-[500px]"
           />
@@ -208,7 +212,7 @@ export default function ReceiverExperience({
 
           <div className="text-center">
 
-            <a
+            <Link
               href="/"
               className="
                 inline-block
@@ -221,7 +225,7 @@ export default function ReceiverExperience({
               "
             >
               Send Your Own Bottle
-            </a>
+            </Link>
 
           </div>
 
@@ -229,5 +233,6 @@ export default function ReceiverExperience({
       )}
 
     </div>
+    </IntroLogo>
   );
 }

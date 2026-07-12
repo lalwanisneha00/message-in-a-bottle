@@ -43,7 +43,7 @@ export default function PaperEditor({
             className="relative"
           >
             <img
-              src="/old-paper.png"
+              src="/sprites/Vintagepaper.png"
               alt="Paper"
               className="w-[320px] md:w-[450px] pointer-events-none"
             />
@@ -74,7 +74,7 @@ export default function PaperEditor({
         ) : (
           <motion.img
             key="roll"
-            src="/paper-roll.png"
+            src="/sprites/Paperroll.png"
             alt="Paper Roll"
             className="w-40"
             initial={{

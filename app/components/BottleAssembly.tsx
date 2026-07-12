@@ -16,6 +16,12 @@ export default function BottleAssembly({
   const [corkPlaced, setCorkPlaced] =
     useState(false);
 
+  const bottleSprite = corkPlaced
+    ? "/sprites/bottlefloating.png"
+    : paperInserted
+    ? "/sprites/Bottlewithpaperroll.png"
+    : "/sprites/Emptybottle.png";
+
   return (
     <div className="flex flex-col items-center justify-center gap-10">
 
@@ -32,7 +38,7 @@ export default function BottleAssembly({
             drag
             dragSnapToOrigin={false}
             whileDrag={{ scale: 1.1 }}
-            src="/paper-roll.png"
+            src="/sprites/Paperroll.png"
             alt=""
             className="w-28 cursor-grab"
             onDragEnd={() => {
@@ -44,13 +50,7 @@ export default function BottleAssembly({
         {/* BOTTLE */}
 
        <motion.img
-  src={
-    corkPlaced
-      ? "/bottle-final.png"
-      : paperInserted
-      ? "/bottle-paper.png"
-      : "/bottle-empty.png"
-  }
+  src={bottleSprite}
   alt=""
   className="w-48 md:w-60"
   animate={{
@@ -69,7 +69,7 @@ export default function BottleAssembly({
             drag
             dragSnapToOrigin={false}
             whileDrag={{ scale: 1.1 }}
-            src="/cork.png"
+            src="/sprites/Cork.png"
             alt=""
             className="w-20 cursor-grab"
             onDragEnd={() => {
