@@ -1,166 +1,362 @@
 "use client";
 
-import { useState } from "react";
+// Owns the sender flow's state machine:
+// idle -> writing -> rolling -> inserting -> corking -> ready -> throwing
+// -> drifting -> saving -> shared | error
+// Each stage renders exactly one interactive element on top of the
+// always-animating BeachScene, and the message survives a failed save
+// (kept in state, never discarded) so retrying never loses the letter.
+
+import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 
 import IntroLogo from "./IntroLogo";
-import BottleAssembly from "./BottleAssembly";
-import AnimatedBeach from "./AnimatedBeach";
-import PaperEditor from "./PaperEditor";
-import OceanThrow from "./OceanThrow";
+import BeachScene from "./BeachScene";
+import BottleDisplay from "./BottleDisplay";
+import DragToThreshold from "./DragToThreshold";
+import WritingPaper from "./WritingPaper";
+import Instruction from "./Instruction";
+import { sprites } from "../../lib/sprites";
 import { supabase } from "../../lib/supabase";
 
+type Stage =
+  | "idle"
+  | "writing"
+  | "rolling"
+  | "inserting"
+  | "corking"
+  | "ready"
+  | "throwing"
+  | "drifting"
+  | "saving"
+  | "shared"
+  | "error";
+
 export default function SenderExperience() {
-  const [message, setMessage] =
-    useState("");
-
-const [generatedLink, setGeneratedLink] =
-  useState("");
-
- const [stage, setStage] =
-  useState<
-    "write" |
-    "rolled" |
-    "assembly" |
-    "ocean" |
-    "link"
-  >("write");
+  const [stage, setStage] = useState<Stage>("idle");
+  const [message, setMessage] = useState("");
+  const [generatedLink, setGeneratedLink] = useState("");
+  const [copied, setCopied] = useState(false);
+  const savePromiseRef = useRef<Promise<{ id: string } | null> | null>(null);
 
   const saveMessage = async () => {
-  const { data, error } =
-    await supabase
+    const { data, error } = await supabase
       .from("messages")
-      .insert([
-        {
-          message,
-        },
-      ])
+      .insert([{ message }])
       .select()
       .single();
 
-  if (error) {
-    console.error(error);
-    return;
-  }
+    if (error) {
+      console.error(error);
+      return null;
+    }
 
-  const link =
-    `${window.location.origin}/message/${data.id}`;
+    return data as { id: string };
+  };
 
-  setGeneratedLink(link);
+  const startThrow = () => {
+    savePromiseRef.current = saveMessage();
+    setStage("throwing");
+  };
 
-  setStage("link");
-};
+  const finishDrift = async () => {
+    setStage("saving");
+    const result = await savePromiseRef.current;
+    if (!result) {
+      setStage("error");
+      return;
+    }
+    setGeneratedLink(`${window.location.origin}/message/${result.id}`);
+    setStage("shared");
+  };
+
+  const retry = () => {
+    savePromiseRef.current = saveMessage();
+    setStage("saving");
+    finishDrift();
+  };
+
+  const resetAll = () => {
+    setMessage("");
+    setGeneratedLink("");
+    setStage("idle");
+  };
 
   return (
     <IntroLogo>
-    <AnimatedBeach>
+      <BeachScene>
+        <div className="flex min-h-screen items-center justify-center p-4">
+          {stage === "idle" && (
+            <button
+              onClick={() => setStage("writing")}
+              aria-label="Tap the bottle to begin writing"
+              className="group flex flex-col items-center gap-4"
+            >
+              <div className="relative" style={{ width: 170 }}>
+                <BottleDisplay
+                  contents="empty"
+                  className="w-full transition-transform group-hover:-translate-y-1"
+                  alt="An empty bottle"
+                />
+                <img
+                  src={sprites.cork.src}
+                  alt=""
+                  aria-hidden
+                  className="pixel-sprite absolute -right-6 bottom-2 w-10 rotate-12"
+                />
+              </div>
+              <p className="rounded-md bg-black/30 px-4 py-2 text-lg font-semibold text-white">
+                Tap the bottle to begin
+              </p>
+            </button>
+          )}
 
-      <div className="flex min-h-screen items-center justify-center">
+          {stage === "writing" && (
+            <WritingPaper
+              initialValue={message}
+              onRoll={(msg) => {
+                setMessage(msg);
+                setStage("rolling");
+              }}
+            />
+          )}
 
-        {stage === "write" && (
-          <PaperEditor
-            onRoll={(msg) => {
-              setMessage(msg);
-              setStage("rolled");
-            }}
-          />
-        )}
+          {stage === "rolling" && (
+            <RollingTransition onDone={() => setStage("inserting")} />
+          )}
 
-        {stage === "rolled" && (
-  <div className="text-center">
+          {stage === "inserting" && (
+            <div className="relative" style={{ width: 190, height: 320 }}>
+              <BottleDisplay
+                contents="empty"
+                className="absolute bottom-0 left-1/2 w-full -translate-x-1/2"
+                alt="Empty bottle waiting for your message"
+              />
+              <DragToThreshold
+                spriteSrc={sprites.paperRoll.src}
+                widthPx={80}
+                style={{ left: -60, top: 90, rotate: "20deg" }}
+                threshold={-70}
+                label="Drag the rolled message into the bottle"
+                onComplete={() => setStage("corking")}
+              />
+              <Instruction text="Drag the paper into the bottle" />
+            </div>
+          )}
 
-    <img
-      src="/sprites/Paperroll.png"
-      className="mx-auto w-40"
+          {stage === "corking" && (
+            <div className="relative" style={{ width: 190, height: 320 }}>
+              <BottleDisplay
+                contents="paper"
+                className="absolute bottom-0 left-1/2 w-full -translate-x-1/2"
+                alt="Bottle holding your message"
+              />
+              <DragToThreshold
+                spriteSrc={sprites.cork.src}
+                widthPx={64}
+                style={{ left: "50%", marginLeft: -32, top: 60, rotate: "0deg" }}
+                threshold={-60}
+                label="Drag the cork onto the bottle"
+                onComplete={() => setStage("ready")}
+              />
+              <Instruction text="Drag the cork onto the bottle" />
+            </div>
+          )}
+
+          {stage === "ready" && (
+            <div className="flex flex-col items-center gap-6">
+              <div style={{ width: 190 }}>
+                <BottleDisplay
+                  contents="sealed"
+                  className="w-full"
+                  alt="Sealed bottle, ready to send"
+                />
+              </div>
+              <button
+                onClick={startThrow}
+                className="rounded-lg border-2 border-[#134e4a] bg-[#2dd4bf] px-6 py-3 font-bold text-[#062e2a] shadow-[3px_3px_0_#134e4a] transition active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+              >
+                Send Bottle to Ocean
+              </button>
+            </div>
+          )}
+
+          {(stage === "throwing" || stage === "drifting") && (
+            <ThrowSequence
+              stage={stage}
+              onThrowComplete={() => setStage("drifting")}
+              onDriftComplete={finishDrift}
+            />
+          )}
+
+          {stage === "saving" && (
+            <div className="flex flex-col items-center gap-3 text-white">
+              <div className="flex gap-2">
+                {[0, 1, 2].map((i) => (
+                  <motion.span
+                    key={i}
+                    className="h-2 w-2 rounded-full bg-white"
+                    animate={{ y: [0, -8, 0] }}
+                    transition={{
+                      duration: 0.9,
+                      repeat: Infinity,
+                      delay: i * 0.15,
+                    }}
+                  />
+                ))}
+              </div>
+              <p className="font-semibold">Sending your bottle out to sea...</p>
+            </div>
+          )}
+
+          {stage === "shared" && (
+            <ShareCard
+              link={generatedLink}
+              copied={copied}
+              onCopy={() => {
+                navigator.clipboard?.writeText(generatedLink).then(
+                  () => setCopied(true),
+                  () => {}
+                );
+                setTimeout(() => setCopied(false), 2000);
+              }}
+              onShare={
+                typeof navigator !== "undefined" && "share" in navigator
+                  ? () =>
+                      navigator.share({
+                        title: "Message in a Bottle",
+                        text: "Someone sent you a message in a bottle.",
+                        url: generatedLink,
+                      })
+                  : undefined
+              }
+              onReset={resetAll}
+            />
+          )}
+
+          {stage === "error" && (
+            <div className="flex flex-col items-center gap-4 rounded-2xl bg-black/40 p-8 text-center text-white">
+              <h2 className="text-2xl font-bold">The tide brought it back</h2>
+              <p className="max-w-xs text-white/80">
+                Your message is safe. Let&apos;s try sending it again.
+              </p>
+              <button
+                onClick={retry}
+                className="rounded-lg border-2 border-[#134e4a] bg-[#2dd4bf] px-6 py-3 font-bold text-[#062e2a] shadow-[3px_3px_0_#134e4a]"
+              >
+                Retry
+              </button>
+            </div>
+          )}
+        </div>
+      </BeachScene>
+    </IntroLogo>
+  );
+}
+
+function RollingTransition({ onDone }: { onDone: () => void }) {
+  useEffect(() => {
+    const t = setTimeout(onDone, 750);
+    return () => clearTimeout(t);
+  }, [onDone]);
+
+  return (
+    <motion.img
+      src={sprites.paperRoll.src}
+      alt="Your message, rolled"
+      className="pixel-sprite w-40"
+      initial={{ opacity: 0, scale: 0.3, rotate: -20 }}
+      animate={{ opacity: 1, scale: 1, rotate: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
     />
+  );
+}
 
-    <h2 className="mt-6 text-3xl text-white font-bold">
-      Message Rolled
-    </h2>
-
-    <button
-      onClick={() =>
-        setStage("assembly")
-      }
-      className="
-      mt-6
-      rounded-xl
-      bg-amber-600
-      px-6
-      py-3
-      text-white
-      "
-    >
-      Continue
-    </button>
-
-  </div>
-)}
-
-{stage === "assembly" && (
-  <BottleAssembly
-    onComplete={() => {
-  setStage("ocean");
-}}
-  />
-)}
-{stage === "ocean" && (
-  <OceanThrow
-    onFinished={saveMessage}
-  />
-)}
-{stage === "link" && (
-  <div
-    className="
-    rounded-2xl
-    bg-black/30
-    backdrop-blur-md
-    p-8
-    text-center
-    text-white
-    "
-  >
-    <h2 className="text-3xl font-bold">
-      Bottle Sent
-    </h2>
-
-    <p className="mt-4">
-      Share this link:
-    </p>
-
-    <div
-      className="
-      mt-4
-      rounded-xl
-      bg-white/10
-      p-4
-      break-all
-      "
-    >
-      {generatedLink}
+function ThrowSequence({
+  stage,
+  onThrowComplete,
+  onDriftComplete,
+}: {
+  stage: "throwing" | "drifting";
+  onThrowComplete: () => void;
+  onDriftComplete: () => void;
+}) {
+  return (
+    <div className="relative flex h-[60vh] w-full items-end justify-center">
+      {stage === "throwing" ? (
+        <motion.div
+          style={{ width: 150 }}
+          initial={{ x: 0, y: 0, rotate: 0, scale: 1 }}
+          animate={{
+            x: [0, -40, 60, 40],
+            y: [0, -220, -160, -40],
+            rotate: [0, -90, -220, -320],
+          }}
+          transition={{ duration: 1.1, ease: "easeInOut" }}
+          onAnimationComplete={onThrowComplete}
+        >
+          <BottleDisplay contents="sealed" className="w-full" still alt="" />
+        </motion.div>
+      ) : (
+        <motion.div
+          style={{ width: 150 }}
+          initial={{ y: -40, scale: 1, opacity: 1 }}
+          animate={{ y: -260, scale: 0.35, opacity: 0.5 }}
+          transition={{ duration: 3.4, ease: "easeOut" }}
+          onAnimationComplete={onDriftComplete}
+        >
+          <BottleDisplay contents="floating" className="w-full" floating alt="" />
+        </motion.div>
+      )}
     </div>
+  );
+}
 
-    <button
-      className="
-      mt-6
-      rounded-xl
-      bg-cyan-600
-      px-6
-      py-3
-      "
-      onClick={() =>
-        navigator.clipboard.writeText(
-          generatedLink
-        )
-      }
-    >
-      Copy Link
-    </button>
-  </div>
-)}
+function ShareCard({
+  link,
+  copied,
+  onCopy,
+  onShare,
+  onReset,
+}: {
+  link: string;
+  copied: boolean;
+  onCopy: () => void;
+  onShare?: () => void;
+  onReset: () => void;
+}) {
+  return (
+    <div className="w-[92vw] max-w-md rounded-2xl border-4 border-[#5c3a1e] bg-[#c98a3f] p-6 text-center shadow-[6px_6px_0_rgba(0,0,0,0.3)]">
+      <h2 className="text-2xl font-bold text-[#3a2410]">Bottle Sent!</h2>
+      <p className="mt-2 text-[#4a2f16]">Share this link:</p>
 
+      <div className="mt-3 break-all rounded-lg bg-[#3a2410]/10 p-3 text-sm text-[#3a2410]">
+        {link}
       </div>
 
-    </AnimatedBeach>
-    </IntroLogo>
+      <div className="mt-4 flex flex-wrap justify-center gap-3">
+        <button
+          onClick={onCopy}
+          className="rounded-lg border-2 border-[#134e4a] bg-[#2dd4bf] px-5 py-2 font-bold text-[#062e2a] shadow-[3px_3px_0_#134e4a] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+        >
+          {copied ? "Copied!" : "Copy Link"}
+        </button>
+        {onShare && (
+          <button
+            onClick={onShare}
+            className="rounded-lg border-2 border-[#5c3a1e] bg-[#e8c48a] px-5 py-2 font-bold text-[#3a2410] shadow-[3px_3px_0_#5c3a1e] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+          >
+            Share
+          </button>
+        )}
+      </div>
+
+      <button
+        onClick={onReset}
+        className="mt-4 text-sm font-semibold text-[#3a2410] underline"
+      >
+        Write another
+      </button>
+    </div>
   );
 }

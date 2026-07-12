@@ -1,6 +1,5 @@
 import { supabase } from "../../../lib/supabase";
 
-import AnimatedBeach from "../../components/AnimatedBeach";
 import ReceiverExperience from "../../components/ReceiverExperience";
 
 export default async function MessagePage({
@@ -16,16 +15,5 @@ export default async function MessagePage({
     .eq("id", id)
     .single();
 
-  return (
-    <AnimatedBeach>
-
-      <ReceiverExperience
-        message={
-          data?.message ??
-          "Message not found"
-        }
-      />
-
-    </AnimatedBeach>
-  );
+  return <ReceiverExperience message={data?.message ?? null} />;
 }
