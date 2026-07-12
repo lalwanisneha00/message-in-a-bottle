@@ -10,6 +10,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { sprites } from "../../lib/sprites";
 import { beachProps, cloudTracks } from "../../lib/beachProps";
+import Birds from "./Birds";
 
 function Clouds() {
   return (
@@ -204,6 +205,7 @@ export default function BeachScene({
       }}
     >
       <Clouds />
+      <Birds />
       <Ocean />
       <Sand />
 

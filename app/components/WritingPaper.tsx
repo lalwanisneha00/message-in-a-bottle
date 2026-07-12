@@ -70,7 +70,7 @@ export default function WritingPaper({
           disabled={!message.trim()}
           className="rounded-lg border-2 border-[#5c3a1e] bg-[#c98a3f] px-6 py-3 font-bold text-[#3a2410] shadow-[3px_3px_0_#5c3a1e] transition active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:cursor-not-allowed disabled:opacity-50"
         >
-          Roll Message
+          Finish
         </button>
       </div>
     </motion.div>

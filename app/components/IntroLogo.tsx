@@ -8,6 +8,8 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { sprites } from "../../lib/sprites";
+import AmbientAudio from "./AmbientAudio";
+import MuteToggle from "./MuteToggle";
 
 const INTRO_DURATION_MS = 2000;
 
@@ -25,6 +27,8 @@ export default function IntroLogo({
 
   return (
     <>
+      <AmbientAudio />
+      <MuteToggle />
       <AnimatePresence>
         {showIntro && (
           <motion.div

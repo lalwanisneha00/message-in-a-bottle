@@ -1,23 +1,26 @@
 "use client";
 
 // Owns the sender flow's state machine:
-// idle -> writing -> rolling -> inserting -> corking -> ready -> throwing
+// idle -> writing -> rolling -> inserting -> corking -> ready (aim + throw)
 // -> drifting -> saving -> shared | error
 // Each stage renders exactly one interactive element on top of the
 // always-animating BeachScene, and the message survives a failed save
 // (kept in state, never discarded) so retrying never loses the letter.
 
 import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 import IntroLogo from "./IntroLogo";
 import BeachScene from "./BeachScene";
 import BottleDisplay from "./BottleDisplay";
 import DragToThreshold from "./DragToThreshold";
+import AimAndThrow from "./AimAndThrow";
 import WritingPaper from "./WritingPaper";
+import RollingPaper from "./RollingPaper";
 import Instruction from "./Instruction";
 import { sprites } from "../../lib/sprites";
 import { supabase } from "../../lib/supabase";
+import { playSfx, duckAmbient } from "../../lib/audio";
 
 type Stage =
   | "idle"
@@ -26,7 +29,6 @@ type Stage =
   | "inserting"
   | "corking"
   | "ready"
-  | "throwing"
   | "drifting"
   | "saving"
   | "shared"
@@ -54,9 +56,9 @@ export default function SenderExperience() {
     return data as { id: string };
   };
 
-  const startThrow = () => {
+  const startDrift = () => {
     savePromiseRef.current = saveMessage();
-    setStage("throwing");
+    setStage("drifting");
   };
 
   const finishDrift = async () => {
@@ -122,7 +124,10 @@ export default function SenderExperience() {
           )}
 
           {stage === "rolling" && (
-            <RollingTransition onDone={() => setStage("inserting")} />
+            <div className="relative">
+              <RollingPaper onDone={() => setStage("inserting")} />
+              <Instruction text="Swipe the paper up to roll it" />
+            </div>
           )}
 
           {stage === "inserting" && (
@@ -138,6 +143,7 @@ export default function SenderExperience() {
                 style={{ left: -60, top: 90, rotate: "20deg" }}
                 threshold={-70}
                 label="Drag the rolled message into the bottle"
+                sound="paperRustle"
                 onComplete={() => setStage("corking")}
               />
               <Instruction text="Drag the paper into the bottle" />
@@ -157,36 +163,17 @@ export default function SenderExperience() {
                 style={{ left: "50%", marginLeft: -32, top: 60, rotate: "0deg" }}
                 threshold={-60}
                 label="Drag the cork onto the bottle"
+                sound="corkSeat"
                 onComplete={() => setStage("ready")}
               />
               <Instruction text="Drag the cork onto the bottle" />
             </div>
           )}
 
-          {stage === "ready" && (
-            <div className="flex flex-col items-center gap-6">
-              <div style={{ width: 190 }}>
-                <BottleDisplay
-                  contents="sealed"
-                  className="w-full"
-                  alt="Sealed bottle, ready to send"
-                />
-              </div>
-              <button
-                onClick={startThrow}
-                className="rounded-lg border-2 border-[#134e4a] bg-[#2dd4bf] px-6 py-3 font-bold text-[#062e2a] shadow-[3px_3px_0_#134e4a] transition active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
-              >
-                Send Bottle to Ocean
-              </button>
-            </div>
-          )}
+          {stage === "ready" && <AimAndThrow onReachedWater={startDrift} />}
 
-          {(stage === "throwing" || stage === "drifting") && (
-            <ThrowSequence
-              stage={stage}
-              onThrowComplete={() => setStage("drifting")}
-              onDriftComplete={finishDrift}
-            />
+          {stage === "drifting" && (
+            <DriftToHorizon onDriftComplete={finishDrift} />
           )}
 
           {stage === "saving" && (
@@ -254,60 +241,52 @@ export default function SenderExperience() {
   );
 }
 
-function RollingTransition({ onDone }: { onDone: () => void }) {
+function DriftToHorizon({ onDriftComplete }: { onDriftComplete: () => void }) {
+  const reducedMotion = useReducedMotion();
+
   useEffect(() => {
-    const t = setTimeout(onDone, 750);
-    return () => clearTimeout(t);
-  }, [onDone]);
+    playSfx("splash");
+    duckAmbient();
+  }, []);
 
-  return (
-    <motion.img
-      src={sprites.paperRoll.src}
-      alt="Your message, rolled"
-      className="pixel-sprite w-40"
-      initial={{ opacity: 0, scale: 0.3, rotate: -20 }}
-      animate={{ opacity: 1, scale: 1, rotate: 0 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-    />
-  );
-}
-
-function ThrowSequence({
-  stage,
-  onThrowComplete,
-  onDriftComplete,
-}: {
-  stage: "throwing" | "drifting";
-  onThrowComplete: () => void;
-  onDriftComplete: () => void;
-}) {
   return (
     <div className="relative flex h-[60vh] w-full items-end justify-center">
-      {stage === "throwing" ? (
-        <motion.div
-          style={{ width: 150 }}
-          initial={{ x: 0, y: 0, rotate: 0, scale: 1 }}
-          animate={{
-            x: [0, -40, 60, 40],
-            y: [0, -220, -160, -40],
-            rotate: [0, -90, -220, -320],
-          }}
-          transition={{ duration: 1.1, ease: "easeInOut" }}
-          onAnimationComplete={onThrowComplete}
-        >
-          <BottleDisplay contents="sealed" className="w-full" still alt="" />
-        </motion.div>
-      ) : (
-        <motion.div
-          style={{ width: 150 }}
-          initial={{ y: -40, scale: 1, opacity: 1 }}
-          animate={{ y: -260, scale: 0.35, opacity: 0.5 }}
-          transition={{ duration: 3.4, ease: "easeOut" }}
-          onAnimationComplete={onDriftComplete}
-        >
-          <BottleDisplay contents="floating" className="w-full" floating alt="" />
-        </motion.div>
-      )}
+      {/* splash: a burst of droplets and expanding rings where the bottle hit the water */}
+      {Array.from({ length: 10 }).map((_, i) => {
+        const angle = (i / 10) * Math.PI * 2;
+        return (
+          <motion.span
+            key={i}
+            className="pointer-events-none absolute bottom-16 h-1.5 w-1.5 rounded-full bg-white/90"
+            initial={{ x: 0, y: 0, opacity: 1 }}
+            animate={{
+              x: Math.cos(angle) * 46,
+              y: -Math.abs(Math.sin(angle)) * 40 - 10,
+              opacity: 0,
+            }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+          />
+        );
+      })}
+      {[0, 1].map((i) => (
+        <motion.span
+          key={i}
+          className="pointer-events-none absolute bottom-16 rounded-full border-2 border-white/70"
+          initial={{ width: 10, height: 10, opacity: 0.7 }}
+          animate={{ width: 90, height: 90, opacity: 0 }}
+          transition={{ duration: 0.9, delay: i * 0.15, ease: "easeOut" }}
+        />
+      ))}
+
+      <motion.div
+        style={{ width: 150 }}
+        initial={{ y: -40, scale: 1, opacity: 1 }}
+        animate={{ y: -260, scale: 0.35, opacity: 0.5 }}
+        transition={{ duration: reducedMotion ? 0.6 : 3.4, ease: "easeOut" }}
+        onAnimationComplete={onDriftComplete}
+      >
+        <BottleDisplay contents="floating" className="w-full" floating alt="" />
+      </motion.div>
     </div>
   );
 }

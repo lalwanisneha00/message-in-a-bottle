@@ -9,12 +9,14 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 import IntroLogo from "./IntroLogo";
 import BeachScene from "./BeachScene";
 import BottleDisplay from "./BottleDisplay";
 import DragToThreshold from "./DragToThreshold";
+import UncorkPop from "./UncorkPop";
+import UnrollPaper from "./UnrollPaper";
 import Instruction from "./Instruction";
 import { sprites } from "../../lib/sprites";
 
@@ -85,24 +87,7 @@ function ReceiverFlow({ message }: { message: string }) {
         <Landed onSettled={() => setStage("uncorking")} />
       )}
 
-      {stage === "uncorking" && (
-        <div className="relative" style={{ width: 190, height: 320 }}>
-          <BottleDisplay
-            contents="paper"
-            className="absolute bottom-0 left-1/2 w-full -translate-x-1/2"
-            alt="Bottle with the cork still in"
-          />
-          <DragToThreshold
-            spriteSrc={sprites.cork.src}
-            widthPx={64}
-            style={{ left: "50%", marginLeft: -32, top: 60 }}
-            threshold={-70}
-            label="Pull the cork out"
-            onComplete={() => setStage("extracting")}
-          />
-          <Instruction text="Pull the cork out" />
-        </div>
-      )}
+      {stage === "uncorking" && <Uncorking onPopped={() => setStage("extracting")} />}
 
       {stage === "extracting" && (
         <div className="relative" style={{ width: 190, height: 320 }}>
@@ -117,15 +102,14 @@ function ReceiverFlow({ message }: { message: string }) {
             style={{ left: "50%", marginLeft: -40, top: 90, rotate: "8deg" }}
             threshold={-90}
             label="Pull the message out"
+            sound="paperRustle"
             onComplete={() => setStage("unrolling")}
           />
           <Instruction text="Pull the message out" />
         </div>
       )}
 
-      {stage === "unrolling" && (
-        <UnrollTransition onDone={() => setStage("reading")} />
-      )}
+      {stage === "unrolling" && <UnrollPaper onDone={() => setStage("reading")} />}
 
       {stage === "reading" && <Reading message={message} />}
     </div>
@@ -133,12 +117,13 @@ function ReceiverFlow({ message }: { message: string }) {
 }
 
 function Approach({ onArrived }: { onArrived: () => void }) {
+  const reducedMotion = useReducedMotion();
   return (
     <motion.div
       style={{ width: 150 }}
       initial={{ y: -180, scale: 0.3, opacity: 0.5 }}
       animate={{ y: 0, scale: 1, opacity: 1 }}
-      transition={{ duration: 3, ease: "easeOut" }}
+      transition={{ duration: reducedMotion ? 0.5 : 3, ease: "easeOut" }}
       onAnimationComplete={onArrived}
     >
       <BottleDisplay contents="floating" className="w-full" floating alt="A bottle drifting toward shore" />
@@ -148,79 +133,126 @@ function Approach({ onArrived }: { onArrived: () => void }) {
 
 function Haul({ onLanded }: { onLanded: () => void }) {
   const [settled, setSettled] = useState(false);
+  const [wet, setWet] = useState(true);
 
   return (
     <div className="flex flex-col items-center gap-4">
       <motion.div
         style={{ width: 150 }}
         drag
-        dragElastic={0.15}
+        dragElastic={0.35}
+        dragTransition={{ power: 0.15, timeConstant: 260 }}
         dragMomentum={false}
         dragConstraints={{ left: -60, right: 60, top: -20, bottom: 140 }}
+        onDrag={(_, info) => setWet(info.offset.y < 90)}
         onDragEnd={(_, info) => {
           if (info.offset.y > 90 && !settled) {
             setSettled(true);
             onLanded();
           }
         }}
-        whileDrag={{ scale: 1.05 }}
-        className="cursor-grab touch-none active:cursor-grabbing"
+        whileDrag={{ scale: 1.04 }}
+        className="relative cursor-grab touch-none active:cursor-grabbing"
       >
+        {wet &&
+          [0, 1, 2].map((i) => (
+            <motion.span
+              key={i}
+              className="absolute left-1/2 top-1/2 h-1 w-1 rounded-full bg-white/70"
+              animate={{ x: -10 - i * 6, y: [0, -6, 0], opacity: [0.7, 0.3, 0.7] }}
+              transition={{ duration: 1.1, repeat: Infinity, delay: i * 0.2 }}
+            />
+          ))}
         <BottleDisplay contents="floating" className="w-full" floating alt="Drag this bottle onto the beach" />
       </motion.div>
-      <Instruction text="Drag the bottle onto the beach" />
+      <Instruction text="Drag the bottle onto the beach — it's heavier than it looks" />
     </div>
   );
 }
 
 function Landed({ onSettled }: { onSettled: () => void }) {
   useEffect(() => {
-    const t = setTimeout(onSettled, 650);
+    const t = setTimeout(onSettled, 900);
     return () => clearTimeout(t);
   }, [onSettled]);
 
   return (
-    <motion.div
-      style={{ width: 170 }}
-      initial={{ scaleY: 0.92, rotate: -3 }}
-      animate={{ scaleY: [0.92, 1.04, 1], rotate: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      <BottleDisplay contents="paper" className="w-full" still alt="Bottle, landed on the sand" />
-    </motion.div>
+    <div className="relative" style={{ width: 170 }}>
+      <motion.div
+        initial={{ scaleY: 0.92, rotate: -3 }}
+        animate={{ scaleY: [0.92, 1.04, 1], rotate: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <BottleDisplay contents="paper" className="w-full" still alt="Bottle, landed on the sand" />
+      </motion.div>
+
+      {Array.from({ length: 6 }).map((_, i) => {
+        const left = 20 + i * 22;
+        return (
+          <motion.span
+            key={i}
+            className="pointer-events-none absolute top-[70%] h-1.5 w-1.5 rounded-full bg-[#8fd3ea]"
+            style={{ left }}
+            initial={{ y: 0, opacity: 0.9 }}
+            animate={{ y: 60 + (i % 3) * 10, opacity: 0 }}
+            transition={{ duration: 0.7, delay: 0.15 + i * 0.05, ease: "easeIn" }}
+          />
+        );
+      })}
+      {Array.from({ length: 4 }).map((_, i) => (
+        <motion.span
+          key={`patch-${i}`}
+          className="pointer-events-none absolute top-[92%] h-2 w-4 rounded-full bg-black/20 blur-[1px]"
+          style={{ left: 16 + i * 32 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: [0, 0.5, 0] }}
+          transition={{ duration: 3, delay: 0.6 + i * 0.1, ease: "easeInOut" }}
+        />
+      ))}
+    </div>
   );
 }
 
-function UnrollTransition({ onDone }: { onDone: () => void }) {
-  useEffect(() => {
-    const t = setTimeout(onDone, 700);
-    return () => clearTimeout(t);
-  }, [onDone]);
+function Uncorking({ onPopped }: { onPopped: () => void }) {
+  const [tension, setTension] = useState(0);
 
   return (
-    <motion.img
-      src={sprites.vintagePaper.src}
-      alt=""
-      aria-hidden
-      className="pixel-sprite w-[90vw] max-w-[480px]"
-      initial={{ opacity: 0, scaleY: 0.2 }}
-      animate={{ opacity: 1, scaleY: 1 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      style={{ transformOrigin: "top" }}
-    />
+    <div className="relative" style={{ width: 190, height: 320 }}>
+      <motion.div
+        className="absolute bottom-0 left-1/2 w-full -translate-x-1/2"
+        animate={{ y: -tension * 5, rotate: tension * 3 }}
+        transition={{ duration: 0.1 }}
+      >
+        <BottleDisplay
+          contents="paper"
+          className="w-full"
+          still
+          alt="Bottle with the cork still in"
+        />
+      </motion.div>
+      <UncorkPop
+        widthPx={64}
+        style={{ left: "50%", marginLeft: -32, top: 60 }}
+        onPopped={onPopped}
+        onTension={setTension}
+      />
+      <Instruction text="Pull the cork out" />
+    </div>
   );
 }
 
 function Reading({ message }: { message: string }) {
+  const reducedMotion = useReducedMotion();
   const [revealedCount, setRevealedCount] = useState(0);
   const [skipped, setSkipped] = useState(false);
   const [ctaVisible, setCtaVisible] = useState(false);
 
-  const shown = skipped ? message : message.slice(0, revealedCount);
+  const instant = skipped || reducedMotion;
+  const shown = instant ? message : message.slice(0, revealedCount);
   const complete = shown.length >= message.length;
 
   useEffect(() => {
-    if (skipped) return;
+    if (instant) return;
     const charsPerTick = Math.max(1, Math.ceil(message.length / 160));
     const interval = setInterval(() => {
       setRevealedCount((c) => {
@@ -230,7 +262,7 @@ function Reading({ message }: { message: string }) {
       });
     }, 28);
     return () => clearInterval(interval);
-  }, [message, skipped]);
+  }, [message, instant]);
 
   useEffect(() => {
     if (!complete) return;

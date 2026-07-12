@@ -84,3 +84,52 @@
 .anim-bottle-float {
   animation: bottle-float 2.4s ease-in-out infinite;
 }
+
+@keyframes bird-drift-ltr {
+  0% {
+    transform: translate(-8vw, 0);
+  }
+  50% {
+    transform: translate(50vw, -14px);
+  }
+  100% {
+    transform: translate(108vw, 6px);
+  }
+}
+
+@keyframes bird-drift-rtl {
+  0% {
+    transform: translate(108vw, 0) scaleX(-1);
+  }
+  50% {
+    transform: translate(50vw, -14px) scaleX(-1);
+  }
+  100% {
+    transform: translate(-8vw, 6px) scaleX(-1);
+  }
+}
+
+.anim-bird-drift-ltr {
+  animation-name: bird-drift-ltr;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.anim-bird-drift-rtl {
+  animation-name: bird-drift-rtl;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-cloud-drift,
+  .anim-palm-sway,
+  .anim-starfish-wobble,
+  .anim-shimmer-twinkle,
+  .anim-bottle-idle,
+  .anim-bottle-float,
+  .anim-bird-drift-ltr,
+  .anim-bird-drift-rtl {
+    animation-play-state: paused;
+  }
+}
