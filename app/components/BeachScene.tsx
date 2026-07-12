@@ -6,7 +6,7 @@
 // as children. Used by both the sender and receiver experiences so the two
 // flows always sit on the same living backdrop.
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { sprites } from "../../lib/sprites";
 import { beachProps, cloudTracks } from "../../lib/beachProps";
@@ -37,24 +37,55 @@ function Clouds() {
   );
 }
 
+// How much narrower each tile is cut than the ocean sprite's natural
+// width for the container's rendered height — >1 crops in tighter,
+// magnifying the water texture instead of showing it "actual size".
+const OCEAN_ZOOM = 2.2;
+
 function Ocean() {
   const ocean = sprites.ocean;
-  const tileWidth = Math.round((ocean.width / ocean.height) * 140);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [tileWidth, setTileWidth] = useState(800);
+  const [tileCount, setTileCount] = useState(3);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const measure = () => {
+      const naturalWidth = el.clientHeight * (ocean.width / ocean.height);
+      const width = Math.max(1, Math.round(naturalWidth / OCEAN_ZOOM));
+      setTileWidth(width);
+      // Enough tiles to cover the container at every point during the
+      // one-tile-width scroll, plus one spare so a resize never leaves
+      // a gap before the next measure fires.
+      setTileCount(Math.ceil(el.clientWidth / width) + 2);
+    };
+
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [ocean.width, ocean.height]);
 
   return (
-    <div className="absolute left-0 right-0 top-[30%] h-[16%] overflow-hidden">
+    <div
+      ref={containerRef}
+      className="absolute left-0 right-0 top-[30%] h-[16%] overflow-hidden"
+    >
       <motion.div
-        className="flex h-full w-[200%]"
+        className="flex h-full"
+        style={{ width: tileWidth * tileCount }}
         animate={{ x: [0, -tileWidth] }}
         transition={{ duration: 46, repeat: Infinity, ease: "linear" }}
       >
-        {[0, 1].map((i) => (
+        {Array.from({ length: tileCount }).map((_, i) => (
           <img
             key={i}
             src={ocean.src}
             alt=""
             aria-hidden
-            className="pixel-sprite h-full"
+            className="pixel-sprite h-full shrink-0"
             style={{ width: tileWidth, objectFit: "cover" }}
           />
         ))}
