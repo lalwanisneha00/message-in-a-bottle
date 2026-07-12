@@ -1,42 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #1a2744;
-  --foreground: #2c2013;
-
-  /* Sunset-ocean palette, shared by real sprites and their placeholders */
-  --color-sky-top: #35316b;
-  --color-sky-mid: #d97a52;
-  --color-sky-bottom: #ffd27f;
-  --color-sun: #ffd166;
-  --color-sun-glow: #ff9a5c;
-  --color-cloud: #ffe8d6;
-  --color-bird: #2b2740;
-  --color-boat: #3a2b22;
-  --color-fish: #ff8a5b;
-
-  --color-ocean-deep: #0b4f6c;
-  --color-ocean-mid: #1a7a99;
-  --color-ocean-light: #4fb8c9;
-  --color-foam: #eafcff;
-
-  --color-sand: #f2d0a0;
-  --color-sand-dark: #d9a86c;
-  --color-palm: #2f7d4f;
-  --color-palm-dark: #1f5c38;
-  --color-shell: #ffd6c9;
-  --color-crab: #e2543a;
-  --color-turtle: #4f8f5c;
-  --color-coconut: #6b4226;
-  --color-driftwood: #8a6a4b;
-  --color-rock: #7c7c86;
-  --color-grass: #6f9c4a;
-
-  --color-glass: rgba(150, 210, 200, 0.35);
-  --color-cork: #b3814a;
-  --color-paper: #ecdcb8;
-  --color-paper-dark: #d8c193;
-  --color-ink: #3a2c1e;
+  --background: #ffffff;
+  --foreground: #171717;
 }
 
 @theme inline {
@@ -44,33 +10,17 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --font-hand: var(--font-caveat);
-  --font-pixel: var(--font-vt323);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
-  overscroll-behavior: none;
-}
-
-.pixelated {
-  image-rendering: pixelated;
-  image-rendering: -moz-crisp-edges;
-  image-rendering: crisp-edges;
-}
-
-@keyframes sparkle-fade {
-  0% {
-    opacity: 0;
-    transform: scale(0.4);
-  }
-  40% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.1);
-  }
+  font-family: Arial, Helvetica, sans-serif;
 }

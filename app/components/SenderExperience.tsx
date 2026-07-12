@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 import IntroLogo from "./IntroLogo";
 import BottleAssembly from "./BottleAssembly";
-import BeachScene from "./scene/BeachScene";
+import AnimatedBeach from "./AnimatedBeach";
 import PaperEditor from "./PaperEditor";
 import OceanThrow from "./OceanThrow";
 import { supabase } from "../../lib/supabase";
@@ -63,7 +63,7 @@ const [generatedLink, setGeneratedLink] =
   }
 
   return (
-    <BeachScene>
+    <AnimatedBeach>
 
       <div className="flex min-h-screen items-center justify-center">
 
@@ -171,6 +171,6 @@ const [generatedLink, setGeneratedLink] =
 
       </div>
 
-    </BeachScene>
+    </AnimatedBeach>
   );
 }
