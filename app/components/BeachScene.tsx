@@ -141,8 +141,8 @@ function Sand() {
       style={{
         backgroundImage: `url(${sand.src})`,
         backgroundRepeat: "no-repeat",
-        backgroundPosition: "center 40%",
-        backgroundSize: "cover",
+        backgroundPosition: "center 58%",
+        backgroundSize: "auto 650%",
       }}
     >
       {beachProps.map((prop, i) => {
