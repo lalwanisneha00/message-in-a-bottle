@@ -140,9 +140,9 @@ function Sand() {
       className="absolute left-0 right-0 bottom-0 top-[43%] overflow-hidden bg-[#e0a868]"
       style={{
         backgroundImage: `url(${sand.src})`,
-        backgroundRepeat: "repeat-x",
-        backgroundPosition: "center 38%",
-        backgroundSize: `auto 260%`,
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "center 40%",
+        backgroundSize: "cover",
       }}
     >
       {beachProps.map((prop, i) => {
