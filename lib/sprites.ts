@@ -35,6 +35,10 @@ export const sprites = {
   bottleFloating: { src: "/sprites/bottlefloating.png", width: 768, height: 800 },
 
   cork: { src: "/sprites/Cork.png", width: 1024, height: 1536 },
+  // Cropped directly from bottleSealed's own cork (tight to its alpha
+  // bounds, no padding) so the draggable cork matches that reference
+  // art pixel-for-pixel instead of an independently-drawn cork sprite.
+  corkSeated: { src: "/sprites/CorkSeated.png", width: 228, height: 98 },
   paperRoll: { src: "/sprites/Paperroll.png", width: 1920, height: 1733 },
   vintagePaper: { src: "/sprites/Vintagepaper.png", width: 1920, height: 1920 },
 } as const satisfies Record<string, Sprite>;

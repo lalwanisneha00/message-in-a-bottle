@@ -52,7 +52,7 @@ export default function UncorkPop({
   return (
     <>
       <motion.img
-        src={sprites.cork.src}
+        src={sprites.corkSeated.src}
         alt="Pull the cork upward"
         tabIndex={0}
         role="button"
