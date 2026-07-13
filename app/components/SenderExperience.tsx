@@ -13,7 +13,6 @@ import { motion, useReducedMotion } from "framer-motion";
 import IntroLogo from "./IntroLogo";
 import BeachScene from "./BeachScene";
 import BottleDisplay from "./BottleDisplay";
-import DragToThreshold from "./DragToThreshold";
 import DragToTarget from "./DragToTarget";
 import AimAndThrow from "./AimAndThrow";
 import WritingPaper from "./WritingPaper";
@@ -160,16 +159,19 @@ export default function SenderExperience() {
                 className="absolute bottom-0 left-1/2 w-full -translate-x-1/2"
                 alt="Bottle holding your message"
               />
-              <DragToThreshold
+              <DragToTarget
                 spriteSrc={sprites.cork.src}
-                widthPx={48}
-                style={{ left: "50%", marginLeft: -24, top: 46, rotate: "0deg" }}
-                threshold={-60}
+                widthPx={40}
+                restLeft={-45}
+                restTop={140}
+                rotate="15deg"
+                targetLeft={44}
+                targetTop={12}
                 label="Drag the cork onto the bottle"
                 sound="corkSeat"
                 onComplete={() => setStage("ready")}
               />
-              <Instruction text="Drag the cork onto the bottle" />
+              <Instruction text="Drag the cork anywhere onto the bottle's mouth" />
             </div>
           )}
 
