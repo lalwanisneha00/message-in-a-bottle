@@ -45,11 +45,7 @@ export const sprites = {
   // receiver's pull-out drag matches how the roll actually sits in
   // the bottle's body instead of an independently-drawn roll sprite.
   paperRollSeated: { src: "/sprites/PaperRollSeated.png", width: 298, height: 978 },
-  // Original art (paperrollwithjutethread.png / paperrollwithoutjutethread.png)
-  // is drawn lying on its side; rotated upright and tightly cropped so it
-  // reads as the same standing roll as the rest of the unroll sequence.
-  paperRollWithThread: { src: "/sprites/PaperRollWithThread.png", width: 417, height: 1750 },
-  paperRollUntied: { src: "/sprites/PaperRollUntied.png", width: 412, height: 1780 },
+  paperRollUntied: { src: "/sprites/paperrollwithoutjutethread.png", width: 1920, height: 960 },
   vintagePaper: { src: "/sprites/Vintagepaper.png", width: 1920, height: 1920 },
 } as const satisfies Record<string, Sprite>;
 
