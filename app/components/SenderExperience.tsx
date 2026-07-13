@@ -92,31 +92,9 @@ export default function SenderExperience() {
           {stage === "idle" && (
             <button
               onClick={() => setStage("writing")}
-              aria-label="Tap the bottle to begin writing"
-              className="group flex flex-col items-center gap-2"
-              style={{ transform: `translateY(calc(${SHORE_ANCHOR_VH}vh + 90px))` }}
+              className="rounded-lg border-2 border-[#134e4a] bg-[#2dd4bf] px-8 py-4 text-lg font-bold text-[#062e2a] shadow-[3px_3px_0_#134e4a] transition active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
             >
-              <div
-                className="relative flex items-center justify-center transition-transform group-hover:-translate-y-1"
-                style={{ width: 155, height: 100 }}
-              >
-                <div style={{ width: 100, transform: "rotate(90deg)" }}>
-                  <BottleDisplay
-                    contents="empty"
-                    className="w-full"
-                    alt="An empty bottle, washed up on the shore"
-                  />
-                </div>
-              </div>
-              <img
-                src={sprites.cork.src}
-                alt=""
-                aria-hidden
-                className="pixel-sprite w-7 rotate-[100deg]"
-              />
-              <p className="mt-2 rounded-md bg-black/30 px-4 py-2 text-lg font-semibold text-white">
-                Tap the bottle to begin
-              </p>
+              Send Your Message
             </button>
           )}
 
