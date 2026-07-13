@@ -108,10 +108,10 @@ function ReceiverFlow({ message }: { message: string }) {
             alt="Bottle, uncorked"
           />
           <DragToThreshold
-            spriteSrc={sprites.paperRoll.src}
-            widthPx={60}
-            style={{ left: "50%", marginLeft: -30, top: 68, rotate: "8deg" }}
-            threshold={-90}
+            spriteSrc={sprites.paperRollSeated.src}
+            widthPx={32}
+            style={{ left: "50%", marginLeft: -16, top: 119 }}
+            threshold={-95}
             label="Pull the message out"
             sound="paperRustle"
             onComplete={() => setStage("unrolling")}

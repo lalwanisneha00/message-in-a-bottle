@@ -40,6 +40,11 @@ export const sprites = {
   // art pixel-for-pixel instead of an independently-drawn cork sprite.
   corkSeated: { src: "/sprites/CorkSeated.png", width: 228, height: 98 },
   paperRoll: { src: "/sprites/Paperroll.png", width: 1920, height: 1733 },
+  // Cropped (and alpha-masked, since the roll sits inside the glass
+  // body) directly from bottleWithPaper's own paper roll, so the
+  // receiver's pull-out drag matches how the roll actually sits in
+  // the bottle's body instead of an independently-drawn roll sprite.
+  paperRollSeated: { src: "/sprites/PaperRollSeated.png", width: 298, height: 978 },
   vintagePaper: { src: "/sprites/Vintagepaper.png", width: 1920, height: 1920 },
 } as const satisfies Record<string, Sprite>;
 
