@@ -110,7 +110,7 @@ export default function SenderExperience() {
 
           {stage === "rolling" && (
             <div className="relative">
-              <RollingPaper onDone={() => setStage("inserting")} />
+              <RollingPaper message={message} onDone={() => setStage("inserting")} />
               <Instruction text="Swipe the paper up to roll it" />
             </div>
           )}

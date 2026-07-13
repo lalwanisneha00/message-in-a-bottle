@@ -16,7 +16,13 @@ import { playSfx } from "../../lib/audio";
 const THRESHOLD = -90;
 const FLICK_VELOCITY = -500;
 
-export default function RollingPaper({ onDone }: { onDone: () => void }) {
+export default function RollingPaper({
+  message,
+  onDone,
+}: {
+  message: string;
+  onDone: () => void;
+}) {
   const [rolled, setRolled] = useState(false);
   const [showFallback, setShowFallback] = useState(false);
   const y = useMotionValue(0);
@@ -76,6 +82,20 @@ export default function RollingPaper({ onDone }: { onDone: () => void }) {
           }
         }}
       />
+
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute left-1/2 top-0 h-[64%] w-[49vw] max-w-[266px] -translate-x-1/2 overflow-hidden whitespace-pre-wrap text-base leading-relaxed text-[#4a2f16]"
+        style={{
+          y,
+          scaleY,
+          opacity,
+          top: "16%",
+          fontFamily: "'Segoe Print', 'Bradley Hand', cursive",
+        }}
+      >
+        {message}
+      </motion.div>
 
       {showFallback && (
         <button
