@@ -93,8 +93,8 @@ export default function SenderExperience() {
             <button
               onClick={() => setStage("writing")}
               aria-label="Tap the bottle to begin writing"
-              className="group flex flex-col items-center gap-4"
-              style={{ transform: `translateY(${SHORE_ANCHOR_VH}vh)` }}
+              className="group flex flex-col items-center gap-2"
+              style={{ transform: `translateY(calc(${SHORE_ANCHOR_VH}vh + 90px))` }}
             >
               <div
                 className="relative flex items-center justify-center transition-transform group-hover:-translate-y-1"
@@ -107,15 +107,14 @@ export default function SenderExperience() {
                     alt="An empty bottle, washed up on the shore"
                   />
                 </div>
-                <img
-                  src={sprites.cork.src}
-                  alt=""
-                  aria-hidden
-                  className="pixel-sprite absolute w-7"
-                  style={{ right: -4, top: "34%", transform: "rotate(100deg)" }}
-                />
               </div>
-              <p className="rounded-md bg-black/30 px-4 py-2 text-lg font-semibold text-white">
+              <img
+                src={sprites.cork.src}
+                alt=""
+                aria-hidden
+                className="pixel-sprite w-7 rotate-[100deg]"
+              />
+              <p className="mt-2 rounded-md bg-black/30 px-4 py-2 text-lg font-semibold text-white">
                 Tap the bottle to begin
               </p>
             </button>
