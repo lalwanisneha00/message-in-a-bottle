@@ -14,6 +14,7 @@ import IntroLogo from "./IntroLogo";
 import BeachScene from "./BeachScene";
 import BottleDisplay from "./BottleDisplay";
 import DragToThreshold from "./DragToThreshold";
+import DragToTarget from "./DragToTarget";
 import AimAndThrow from "./AimAndThrow";
 import WritingPaper from "./WritingPaper";
 import RollingPaper from "./RollingPaper";
@@ -129,16 +130,19 @@ export default function SenderExperience() {
                 className="absolute bottom-0 left-1/2 w-full -translate-x-1/2"
                 alt="Empty bottle waiting for your message"
               />
-              <DragToThreshold
+              <DragToTarget
                 spriteSrc={sprites.paperRoll.src}
                 widthPx={60}
-                style={{ left: -46, top: 68, rotate: "20deg" }}
-                threshold={-70}
+                restLeft={-55}
+                restTop={115}
+                rotate="20deg"
+                targetLeft={43}
+                targetTop={10}
                 label="Drag the rolled message into the bottle"
                 sound="paperRustle"
                 onComplete={() => setStage("corking")}
               />
-              <Instruction text="Drag the paper into the bottle" />
+              <Instruction text="Drag the paper anywhere onto the bottle's mouth" />
             </div>
           )}
 
