@@ -12,8 +12,8 @@ export interface BeachProp {
 // Positions are deliberately asymmetric (no mirrored pairs, no even
 // spacing) so the beach doesn't read as a tiled/copy-pasted strip.
 export const beachProps: BeachProp[] = [
-  { sprite: "palmTree", leftPct: 8, bottomPct: 30, widthPx: 190, swayDelay: 0 },
-  { sprite: "palmTree", leftPct: 15, bottomPct: 12, widthPx: 130, flip: true, swayDelay: 1.4 },
+  { sprite: "palmTree", leftPct: 8, bottomPct: 30, widthPx: 130, swayDelay: 0 },
+  { sprite: "palmTree", leftPct: 15, bottomPct: 12, widthPx: 190, flip: true, swayDelay: 1.4 },
   { sprite: "palmTree", leftPct: 86, bottomPct: 22, widthPx: 170, swayDelay: 0.7 },
 
   { sprite: "sandcastle1", leftPct: 46, bottomPct: 8, widthPx: 130 },
