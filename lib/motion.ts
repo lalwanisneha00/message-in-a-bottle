@@ -20,3 +20,10 @@ export const SPRING_HEAVY = { type: "spring", stiffness: 90, damping: 18, mass: 
 // onto the shore without affecting stages that are meant to be in the
 // water (drifting/approaching).
 export const SHORE_ANCHOR_VH = 16;
+
+// Sky/ocean/sand are equal thirds (ocean spans 33.34vh-66.67vh), so the
+// ocean band's own vertical middle is ~50vh. The thrown bottle should
+// splash a little below that middle, not right at the horizon edge —
+// shared between the throw's flight-end calculation and the drift
+// sequence's starting position so the two don't visually jump.
+export const OCEAN_IMPACT_VH = 55;

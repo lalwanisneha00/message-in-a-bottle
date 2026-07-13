@@ -7,13 +7,14 @@
 // function, so the preview is never a lie. A pull too weak to clear the
 // shoreline lands and settles back on the sand for another attempt.
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { motion, useMotionValue, animate } from "framer-motion";
 import BottleDisplay from "./BottleDisplay";
 import Instruction from "./Instruction";
 import { MAX_PULL_DISTANCE, pullToVelocity, simulateThrow } from "../../lib/physics";
+import { OCEAN_IMPACT_VH } from "../../lib/motion";
 
-const WATER_DISTANCE = 260;
+const FALLBACK_WATER_DISTANCE = 260;
 const BOTTLE_WIDTH = 145;
 const ORIGIN_X = BOTTLE_WIDTH / 2;
 const ORIGIN_Y = 122;
@@ -27,6 +28,7 @@ export default function AimAndThrow({
 }) {
   const [phase, setPhase] = useState<Phase>("ready");
   const [pull, setPull] = useState({ x: 0, y: 0 });
+  const boxRef = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const rotate = useMotionValue(0);
@@ -47,11 +49,32 @@ export default function AimAndThrow({
     }
 
     setPhase("flying");
+
+    // The bottle's rest position (box bottom, where it sits on the
+    // shore) versus the desired on-screen splash point tells us exactly
+    // how far up the flight needs to travel — computed live so it lands
+    // at the same spot regardless of viewport size, rather than a fixed
+    // guess at "how many pixels is the ocean".
+    const box = boxRef.current?.getBoundingClientRect();
+    const waterDistance = box
+      ? box.bottom - (window.innerHeight * OCEAN_IMPACT_VH) / 100
+      : FALLBACK_WATER_DISTANCE;
+
     const velocity = pullToVelocity(releasePull);
     const fullPath = simulateThrow(velocity);
-    const waterIndex = fullPath.findIndex((p) => p.y < -WATER_DISTANCE);
+    const waterIndex = fullPath.findIndex((p) => p.y < -waterDistance);
     const reachedWater = waterIndex !== -1;
     const path = reachedWater ? fullPath.slice(0, waterIndex + 1) : fullPath;
+
+    // A hard throw can jump well past the threshold between two
+    // discrete simulation steps (bigger pull -> bigger per-step
+    // distance), so the last point can overshoot the intended splash
+    // point by a lot. Clamp it so the landing spot is consistent
+    // regardless of how hard the bottle was thrown.
+    if (reachedWater) {
+      const last = path[path.length - 1];
+      path[path.length - 1] = { ...last, y: -waterDistance };
+    }
 
     const xs = path.map((p) => p.x);
     const ys = path.map((p) => p.y);
@@ -86,7 +109,7 @@ export default function AimAndThrow({
 
   return (
     <div className="flex flex-col items-center gap-6">
-      <div className="relative" style={{ width: BOTTLE_WIDTH, height: 245 }}>
+      <div ref={boxRef} className="relative" style={{ width: BOTTLE_WIDTH, height: 245 }}>
         {previewPoints.map((p, i) => (
           <div
             key={i}

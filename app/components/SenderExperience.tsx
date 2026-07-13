@@ -21,7 +21,7 @@ import Instruction from "./Instruction";
 import { sprites } from "../../lib/sprites";
 import { supabase } from "../../lib/supabase";
 import { playSfx, duckAmbient } from "../../lib/audio";
-import { SHORE_ANCHOR_VH } from "../../lib/motion";
+import { SHORE_ANCHOR_VH, OCEAN_IMPACT_VH } from "../../lib/motion";
 
 type Stage =
   | "idle"
@@ -258,15 +258,22 @@ function DriftToHorizon({ onDriftComplete }: { onDriftComplete: () => void }) {
     duckAmbient();
   }, []);
 
+  // Anchored directly to the viewport (not the flex-centered layout the
+  // rest of this stage uses) so the splash starts at exactly the same
+  // OCEAN_IMPACT_VH point AimAndThrow's flight just ended at, instead of
+  // wherever this component's own box happened to center.
+  const impactPoint = { top: `${OCEAN_IMPACT_VH}vh`, left: "50%" };
+
   return (
-    <div className="relative flex h-[60vh] w-full items-end justify-center">
+    <>
       {/* splash: a burst of droplets and expanding rings where the bottle hit the water */}
       {Array.from({ length: 10 }).map((_, i) => {
         const angle = (i / 10) * Math.PI * 2;
         return (
           <motion.span
             key={i}
-            className="pointer-events-none absolute bottom-16 h-1.5 w-1.5 rounded-full bg-white/90"
+            className="pointer-events-none absolute h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/90"
+            style={impactPoint}
             initial={{ x: 0, y: 0, opacity: 1 }}
             animate={{
               x: Math.cos(angle) * 46,
@@ -280,7 +287,8 @@ function DriftToHorizon({ onDriftComplete }: { onDriftComplete: () => void }) {
       {[0, 1].map((i) => (
         <motion.span
           key={i}
-          className="pointer-events-none absolute bottom-16 rounded-full border-2 border-white/70"
+          className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white/70"
+          style={impactPoint}
           initial={{ width: 10, height: 10, opacity: 0.7 }}
           animate={{ width: 90, height: 90, opacity: 0 }}
           transition={{ duration: 0.9, delay: i * 0.15, ease: "easeOut" }}
@@ -288,15 +296,16 @@ function DriftToHorizon({ onDriftComplete }: { onDriftComplete: () => void }) {
       ))}
 
       <motion.div
-        style={{ width: 120 }}
-        initial={{ y: -40, scale: 1, opacity: 1 }}
+        className="absolute -translate-x-1/2 -translate-y-1/2"
+        style={{ ...impactPoint, width: 120 }}
+        initial={{ y: 0, scale: 1, opacity: 1 }}
         animate={{ y: -260, scale: 0.35, opacity: 0.5 }}
         transition={{ duration: reducedMotion ? 0.6 : 3.4, ease: "easeOut" }}
         onAnimationComplete={onDriftComplete}
       >
         <BottleDisplay contents="floating" className="w-full" floating alt="" />
       </motion.div>
-    </div>
+    </>
   );
 }
 
