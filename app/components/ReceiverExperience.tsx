@@ -1,8 +1,8 @@
 "use client";
 
 // Owns the receiver flow's state machine:
-// approaching -> hauling -> landed -> uncorking -> extracting -> unrolling
-// -> reading (or notFound if no message was retrieved).
+// approaching -> hauling -> landed -> uncorking -> extracting -> unthreading
+// -> unrolling -> reading (or notFound if no message was retrieved).
 // `message` is exactly what the server component fetched via the
 // unmodified Supabase call in app/message/[id]/page.tsx — null means no
 // row was found for this id, rendered in-world rather than as an error.
@@ -27,6 +27,7 @@ type Stage =
   | "landed"
   | "uncorking"
   | "extracting"
+  | "unthreading"
   | "unrolling"
   | "reading";
 
@@ -114,13 +115,34 @@ function ReceiverFlow({ message }: { message: string }) {
             threshold={-95}
             label="Pull the message out"
             sound="paperRustle"
-            onComplete={() => setStage("unrolling")}
+            onComplete={() => setStage("unthreading")}
           />
           <Instruction text="Pull the message out" />
         </div>
       )}
 
-      {stage === "unrolling" && <UnrollPaper onDone={() => setStage("reading")} />}
+      {stage === "unthreading" && (
+        <div className="relative" style={{ width: 64, height: 270 }}>
+          <DragToThreshold
+            spriteSrc={sprites.paperRollWithThread.src}
+            widthPx={64}
+            style={{ left: "50%", marginLeft: -32, top: 0 }}
+            threshold={-90}
+            label="Pull the thread to untie it"
+            sound="paperRustle"
+            onComplete={() => setStage("unrolling")}
+          />
+          <Instruction text="Pull the thread to untie it" />
+        </div>
+      )}
+
+      {stage === "unrolling" && (
+        <UnrollPaper
+          spriteSrc={sprites.paperRollUntied.src}
+          widthPx={64}
+          onDone={() => setStage("reading")}
+        />
+      )}
 
       {stage === "reading" && <Reading message={message} />}
     </div>

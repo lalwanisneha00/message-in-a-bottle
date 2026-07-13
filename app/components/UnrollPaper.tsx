@@ -15,7 +15,15 @@ import { playSfx } from "../../lib/audio";
 const THRESHOLD = 90;
 const FLICK_VELOCITY = 500;
 
-export default function UnrollPaper({ onDone }: { onDone: () => void }) {
+export default function UnrollPaper({
+  spriteSrc = sprites.paperRoll.src,
+  widthPx = 160,
+  onDone,
+}: {
+  spriteSrc?: string;
+  widthPx?: number;
+  onDone: () => void;
+}) {
   const [unrolled, setUnrolled] = useState(false);
   const [showFallback, setShowFallback] = useState(false);
   const y = useMotionValue(0);
@@ -51,13 +59,13 @@ export default function UnrollPaper({ onDone }: { onDone: () => void }) {
   return (
     <div className="flex flex-col items-center gap-6">
       <motion.img
-        src={sprites.paperRoll.src}
+        src={spriteSrc}
         alt="The rolled message"
         tabIndex={0}
         role="button"
         aria-label="Unroll the paper"
-        className="pixel-sprite w-40 cursor-grab touch-none select-none outline-none focus-visible:ring-4 focus-visible:ring-white/70 active:cursor-grabbing"
-        style={{ y, scaleY, opacity, transformOrigin: "top" }}
+        className="pixel-sprite cursor-grab touch-none select-none outline-none focus-visible:ring-4 focus-visible:ring-white/70 active:cursor-grabbing"
+        style={{ width: widthPx, y, scaleY, opacity, transformOrigin: "top" }}
         drag="y"
         dragConstraints={{ top: 0, bottom: THRESHOLD + 10 }}
         dragElastic={0.15}
