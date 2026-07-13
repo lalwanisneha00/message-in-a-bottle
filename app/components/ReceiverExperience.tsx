@@ -252,8 +252,8 @@ function Uncorking({ onPopped }: { onPopped: () => void }) {
         />
       </motion.div>
       <UncorkPop
-        widthPx={70}
-        style={{ left: "50%", marginLeft: -35, top: -14 }}
+        widthPx={86}
+        style={{ left: "50%", marginLeft: -43, top: 14 }}
         onPopped={onPopped}
         onTension={setTension}
       />
