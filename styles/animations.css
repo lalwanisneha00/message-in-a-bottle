@@ -85,6 +85,21 @@
   animation: bottle-float 2.4s ease-in-out infinite;
 }
 
+@keyframes device-rotate {
+  0%,
+  35% {
+    transform: rotate(0deg);
+  }
+  65%,
+  100% {
+    transform: rotate(90deg);
+  }
+}
+
+.anim-device-rotate {
+  animation: device-rotate 1.8s ease-in-out infinite;
+}
+
 @keyframes bird-drift-ltr {
   0% {
     transform: translate(-8vw, 0);
@@ -129,7 +144,8 @@
   .anim-bottle-idle,
   .anim-bottle-float,
   .anim-bird-drift-ltr,
-  .anim-bird-drift-rtl {
+  .anim-bird-drift-rtl,
+  .anim-device-rotate {
     animation-play-state: paused;
   }
 }

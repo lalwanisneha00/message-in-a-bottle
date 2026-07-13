@@ -164,7 +164,13 @@ function Crab({
   );
 }
 
-function Sand() {
+// Split from the props layer below: this one needs overflow-hidden to
+// crop the oversized (auto 900%) background texture to the band, but
+// that same clipping was also cutting off the tops of tall props (like
+// the foreground palm trees) on short viewports — making them look
+// like they vanished behind the ocean instead of standing in front of
+// it. Props get their own unclipped sibling at the same position.
+function SandBackground() {
   const sand = sprites.sand;
   return (
     <div
@@ -175,7 +181,13 @@ function Sand() {
         backgroundPosition: "center 58%",
         backgroundSize: "auto 900%",
       }}
-    >
+    />
+  );
+}
+
+function SandProps() {
+  return (
+    <div className="absolute left-0 right-0 bottom-0 top-[66.67%] pointer-events-none">
       {beachProps.map((prop, i) => {
         if (prop.sprite === "starfish") {
           return <Starfish key={i} {...prop} />;
@@ -238,7 +250,8 @@ export default function BeachScene({
       <Clouds />
       <Birds />
       <Ocean />
-      <Sand />
+      <SandBackground />
+      <SandProps />
 
       <div className="relative z-10 min-h-screen">{children}</div>
     </div>

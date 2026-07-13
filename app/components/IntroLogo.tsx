@@ -10,6 +10,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { sprites } from "../../lib/sprites";
 import AmbientAudio from "./AmbientAudio";
 import MuteToggle from "./MuteToggle";
+import OrientationGate from "./OrientationGate";
 
 const INTRO_DURATION_MS = 2000;
 
@@ -27,6 +28,7 @@ export default function IntroLogo({
 
   return (
     <>
+      <OrientationGate />
       <AmbientAudio />
       <MuteToggle />
       <AnimatePresence>

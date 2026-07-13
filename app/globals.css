@@ -24,3 +24,12 @@ body {
   image-rendering: pixelated;
   image-rendering: -webkit-optimize-contrast;
 }
+
+/* Touch devices only (pointer: coarse) — a resized desktop window in a
+   tall/narrow shape has a mouse (pointer: fine) and should never be
+   blocked by this, only actual phones/tablets held portrait. */
+@media (max-width: 900px) and (orientation: portrait) and (pointer: coarse) {
+  .orientation-gate {
+    display: flex !important;
+  }
+}
