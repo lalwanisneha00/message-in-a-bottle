@@ -19,6 +19,7 @@ import UncorkPop from "./UncorkPop";
 import UnrollPaper from "./UnrollPaper";
 import Instruction from "./Instruction";
 import { sprites } from "../../lib/sprites";
+import { SHORE_ANCHOR_VH } from "../../lib/motion";
 
 type Stage =
   | "approaching"
@@ -55,8 +56,11 @@ export default function ReceiverExperience({
 
 function NotFound() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-6 p-4 text-center">
-      <div style={{ width: 170 }}>
+    <div
+      className="flex min-h-screen flex-col items-center justify-center gap-3 p-4 text-center"
+      style={{ transform: `translateY(${SHORE_ANCHOR_VH + 6}vh)` }}
+    >
+      <div style={{ width: 105 }}>
         <BottleDisplay contents="empty" className="w-full" alt="An empty, uncorked bottle" />
       </div>
       <p className="max-w-xs rounded-md bg-black/30 px-4 py-3 text-lg font-semibold text-white">
@@ -90,7 +94,14 @@ function ReceiverFlow({ message }: { message: string }) {
       {stage === "uncorking" && <Uncorking onPopped={() => setStage("extracting")} />}
 
       {stage === "extracting" && (
-        <div className="relative" style={{ width: 190, height: 320 }}>
+        <div
+          className="relative"
+          style={{
+            width: 145,
+            height: 245,
+            transform: `translateY(${SHORE_ANCHOR_VH}vh)`,
+          }}
+        >
           <BottleDisplay
             contents="empty"
             className="absolute bottom-0 left-1/2 w-full -translate-x-1/2"
@@ -98,8 +109,8 @@ function ReceiverFlow({ message }: { message: string }) {
           />
           <DragToThreshold
             spriteSrc={sprites.paperRoll.src}
-            widthPx={80}
-            style={{ left: "50%", marginLeft: -40, top: 90, rotate: "8deg" }}
+            widthPx={60}
+            style={{ left: "50%", marginLeft: -30, top: 68, rotate: "8deg" }}
             threshold={-90}
             label="Pull the message out"
             sound="paperRustle"
@@ -120,7 +131,7 @@ function Approach({ onArrived }: { onArrived: () => void }) {
   const reducedMotion = useReducedMotion();
   return (
     <motion.div
-      style={{ width: 150 }}
+      style={{ width: 120 }}
       initial={{ y: -180, scale: 0.3, opacity: 0.5 }}
       animate={{ y: 0, scale: 1, opacity: 1 }}
       transition={{ duration: reducedMotion ? 0.5 : 3, ease: "easeOut" }}
@@ -138,7 +149,7 @@ function Haul({ onLanded }: { onLanded: () => void }) {
   return (
     <div className="flex flex-col items-center gap-4">
       <motion.div
-        style={{ width: 150 }}
+        style={{ width: 120 }}
         drag
         dragElastic={0.35}
         dragTransition={{ power: 0.15, timeConstant: 260 }}
@@ -177,7 +188,10 @@ function Landed({ onSettled }: { onSettled: () => void }) {
   }, [onSettled]);
 
   return (
-    <div className="relative" style={{ width: 170 }}>
+    <div
+      className="relative"
+      style={{ width: 125, transform: `translateY(${SHORE_ANCHOR_VH}vh)` }}
+    >
       <motion.div
         initial={{ scaleY: 0.92, rotate: -3 }}
         animate={{ scaleY: [0.92, 1.04, 1], rotate: 0 }}
@@ -187,7 +201,7 @@ function Landed({ onSettled }: { onSettled: () => void }) {
       </motion.div>
 
       {Array.from({ length: 6 }).map((_, i) => {
-        const left = 20 + i * 22;
+        const left = 15 + i * 16;
         return (
           <motion.span
             key={i}
@@ -203,7 +217,7 @@ function Landed({ onSettled }: { onSettled: () => void }) {
         <motion.span
           key={`patch-${i}`}
           className="pointer-events-none absolute top-[92%] h-2 w-4 rounded-full bg-black/20 blur-[1px]"
-          style={{ left: 16 + i * 32 }}
+          style={{ left: 12 + i * 24 }}
           initial={{ opacity: 0 }}
           animate={{ opacity: [0, 0.5, 0] }}
           transition={{ duration: 3, delay: 0.6 + i * 0.1, ease: "easeInOut" }}
@@ -217,7 +231,14 @@ function Uncorking({ onPopped }: { onPopped: () => void }) {
   const [tension, setTension] = useState(0);
 
   return (
-    <div className="relative" style={{ width: 190, height: 320 }}>
+    <div
+      className="relative"
+      style={{
+        width: 145,
+        height: 245,
+        transform: `translateY(${SHORE_ANCHOR_VH}vh)`,
+      }}
+    >
       <motion.div
         className="absolute bottom-0 left-1/2 w-full -translate-x-1/2"
         animate={{ y: -tension * 5, rotate: tension * 3 }}
@@ -231,8 +252,8 @@ function Uncorking({ onPopped }: { onPopped: () => void }) {
         />
       </motion.div>
       <UncorkPop
-        widthPx={64}
-        style={{ left: "50%", marginLeft: -32, top: 60 }}
+        widthPx={48}
+        style={{ left: "50%", marginLeft: -24, top: 46 }}
         onPopped={onPopped}
         onTension={setTension}
       />

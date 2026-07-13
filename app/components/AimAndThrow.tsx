@@ -14,8 +14,9 @@ import Instruction from "./Instruction";
 import { MAX_PULL_DISTANCE, pullToVelocity, simulateThrow } from "../../lib/physics";
 
 const WATER_DISTANCE = 260;
-const ORIGIN_X = 95;
-const ORIGIN_Y = 160;
+const BOTTLE_WIDTH = 145;
+const ORIGIN_X = BOTTLE_WIDTH / 2;
+const ORIGIN_Y = 122;
 
 type Phase = "ready" | "aiming" | "flying";
 
@@ -85,7 +86,7 @@ export default function AimAndThrow({
 
   return (
     <div className="flex flex-col items-center gap-6">
-      <div className="relative" style={{ width: 190, height: 320 }}>
+      <div className="relative" style={{ width: BOTTLE_WIDTH, height: 245 }}>
         {previewPoints.map((p, i) => (
           <div
             key={i}
@@ -108,7 +109,7 @@ export default function AimAndThrow({
           }}
           dragElastic={0.1}
           dragMomentum={false}
-          style={{ x, y, rotate, width: 190, position: "absolute", left: 0, bottom: 0 }}
+          style={{ x, y, rotate, width: BOTTLE_WIDTH, position: "absolute", left: 0, bottom: 0 }}
           className={phase === "aiming" ? "cursor-grab touch-none active:cursor-grabbing" : ""}
           onDrag={() => setPull({ x: x.get(), y: Math.max(0, y.get()) })}
           onDragEnd={(_, info) =>

@@ -12,3 +12,11 @@ export const DUR_SLOW = 1.1;
 export const SPRING_SNAPPY = { type: "spring", stiffness: 300, damping: 14 } as const;
 export const SPRING_SOFT = { type: "spring", stiffness: 180, damping: 20 } as const;
 export const SPRING_HEAVY = { type: "spring", stiffness: 90, damping: 18, mass: 1.6 } as const;
+
+// Vertical offset (from viewport center) that anchors bottle-focused
+// scenes near the shoreline instead of dead-center. Sky/ocean/sand are
+// equal thirds, so the literal viewport center (50%) falls inside the
+// ocean band, not on the sand — this nudges resting-bottle stages down
+// onto the shore without affecting stages that are meant to be in the
+// water (drifting/approaching).
+export const SHORE_ANCHOR_VH = 16;
