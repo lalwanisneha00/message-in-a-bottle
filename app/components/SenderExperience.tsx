@@ -21,7 +21,7 @@ import Instruction from "./Instruction";
 import { sprites } from "../../lib/sprites";
 import { supabase } from "../../lib/supabase";
 import { playSfx, duckAmbient } from "../../lib/audio";
-import { SHORE_ANCHOR_VH, OCEAN_IMPACT_VH } from "../../lib/motion";
+import { SHORE_ANCHOR_VH, OCEAN_IMPACT_VH, OCEAN_TOP_VH } from "../../lib/motion";
 
 type Stage =
   | "idle"
@@ -264,6 +264,15 @@ function DriftToHorizon({ onDriftComplete }: { onDriftComplete: () => void }) {
   // wherever this component's own box happened to center.
   const impactPoint = { top: `${OCEAN_IMPACT_VH}vh`, left: "50%" };
 
+  // How far up (in px) the bottle can drift before it reaches the
+  // ocean's own top edge — past that it would be floating over the sky
+  // sprite, so the float-away animation travels exactly this far and
+  // fades out fully by the end instead of overshooting into the sky.
+  const driftDistance =
+    typeof window !== "undefined"
+      ? (window.innerHeight * (OCEAN_IMPACT_VH - OCEAN_TOP_VH)) / 100
+      : 200;
+
   return (
     <>
       {/* splash: a burst of droplets and expanding rings where the bottle hit the water */}
@@ -299,7 +308,7 @@ function DriftToHorizon({ onDriftComplete }: { onDriftComplete: () => void }) {
         className="absolute -translate-x-1/2 -translate-y-1/2"
         style={{ ...impactPoint, width: 120 }}
         initial={{ y: 0, scale: 1, opacity: 1 }}
-        animate={{ y: -260, scale: 0.35, opacity: 0.5 }}
+        animate={{ y: -driftDistance, scale: 0.35, opacity: 0 }}
         transition={{ duration: reducedMotion ? 0.6 : 3.4, ease: "easeOut" }}
         onAnimationComplete={onDriftComplete}
       >

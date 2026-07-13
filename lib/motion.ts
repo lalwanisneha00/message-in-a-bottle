@@ -27,3 +27,8 @@ export const SHORE_ANCHOR_VH = 16;
 // shared between the throw's flight-end calculation and the drift
 // sequence's starting position so the two don't visually jump.
 export const OCEAN_IMPACT_VH = 55;
+
+// The ocean band's own top edge (BeachScene's Ocean starts at top-[33.34%]).
+// The bottle drifting out to the horizon should fade away by the time it
+// reaches this line, not cross into the sky band above it.
+export const OCEAN_TOP_VH = 33.34;
