@@ -71,7 +71,7 @@ function Ocean() {
   return (
     <div
       ref={containerRef}
-      className="absolute left-0 right-0 top-[30%] h-[16%] overflow-hidden"
+      className="absolute left-0 right-0 top-[33.34%] h-[33.33%] overflow-hidden"
     >
       <motion.div
         className="flex h-full"
@@ -168,12 +168,12 @@ function Sand() {
   const sand = sprites.sand;
   return (
     <div
-      className="absolute left-0 right-0 bottom-0 top-[43%] overflow-hidden bg-[#e0a868]"
+      className="absolute left-0 right-0 bottom-0 top-[66.67%] overflow-hidden bg-[#e0a868]"
       style={{
         backgroundImage: `url(${sand.src})`,
         backgroundRepeat: "no-repeat",
         backgroundPosition: "center 58%",
-        backgroundSize: "auto 650%",
+        backgroundSize: "auto 900%",
       }}
     >
       {beachProps.map((prop, i) => {
