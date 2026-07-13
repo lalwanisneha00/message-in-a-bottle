@@ -96,17 +96,23 @@ export default function SenderExperience() {
               className="group flex flex-col items-center gap-4"
               style={{ transform: `translateY(${SHORE_ANCHOR_VH}vh)` }}
             >
-              <div className="relative" style={{ width: 125 }}>
-                <BottleDisplay
-                  contents="empty"
-                  className="w-full transition-transform group-hover:-translate-y-1"
-                  alt="An empty bottle"
-                />
+              <div
+                className="relative flex items-center justify-center transition-transform group-hover:-translate-y-1"
+                style={{ width: 155, height: 100 }}
+              >
+                <div style={{ width: 100, transform: "rotate(90deg)" }}>
+                  <BottleDisplay
+                    contents="empty"
+                    className="w-full"
+                    alt="An empty bottle, washed up on the shore"
+                  />
+                </div>
                 <img
                   src={sprites.cork.src}
                   alt=""
                   aria-hidden
-                  className="pixel-sprite absolute -right-4 bottom-1 w-7 rotate-12"
+                  className="pixel-sprite absolute w-7"
+                  style={{ right: -4, top: "34%", transform: "rotate(100deg)" }}
                 />
               </div>
               <p className="rounded-md bg-black/30 px-4 py-2 text-lg font-semibold text-white">
